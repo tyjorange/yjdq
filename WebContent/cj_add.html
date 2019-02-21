@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>修改</title>
+    <link rel="stylesheet" href="layui/css/layui.css">
+</head>
+<body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>全部断路器</legend>
+</fieldset>
+<form class="layui-form" action="">
+    <div class="layui-form-item">
+        <label class="layui-form-label">采集项</label>
+        <div class="layui-input-block">
+            <input type="checkbox" name="cb1" title="有功功率">
+            <input type="checkbox" name="cb2" title="无功功率">
+            <input type="checkbox" name="cb3" title="电流">
+            <input type="checkbox" name="cb4" title="电压">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">采集间隔(秒)</label>
+        <div class="layui-input-block">
+            <input type="text" name="time" lay-verify="required|number" placeholder="请输入"
+                   class="layui-input">
+        </div>
+    </div>
+    <table class="layui-table"
+           lay-data="{height:'500',width:'full-500', url:'dao/dlq_findAll.php', page:false, id:'cj_table'}"
+           lay-filter="demo">
+        <thead>
+        <tr>
+            <th lay-data="{checkbox:true}"></th>
+            <th lay-data="{field:'Id', width:120, sort: true, fixed: false}">断路器ID</th>
+            <th lay-data="{field:'Name', width:120, sort: true, fixed: false}">断路器名称</th>
+        </tr>
+        </thead>
+    </table>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" lay-submit="" lay-filter="demo1">确认</button>
+            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+        </div>
+    </div>
+</form>
+<script src="layui/layui.js"></script>
+<script>
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+    layui.use(['laydate', 'laypage', 'layer', 'table', 'element', 'form'], function () {
+        var $ = layui.$, laydate = layui.laydate, laypage = layui.laypage, layer = layui.layer, table = layui.table,
+            element = layui.element, form = layui.form;
+        form.on('submit(demo1)', function (data) {
+            var va1 = data.field.cb1 == null ? 0 : 1;
+            var va2 = data.field.cb2 == null ? 0 : 1;
+            var va3 = data.field.cb3 == null ? 0 : 1;
+            var va4 = data.field.cb4 == null ? 0 : 1;
+            var va5 = data.field.time;
+            var checkStatus = table.checkStatus('cj_table'); //获取选中行的数据
+            console.log(checkStatus.data); //获取选中的数据
+            var arr = {
+                collectRealPower: va1,
+                collectWastPower: va2,
+                collectElectric: va3,
+                collectVoltage: va4,
+                collectInterval: va5,
+                Ids: checkStatus.data
+            };
+            $.ajax({
+                url: "dao/cj_add.php",
+                type: "POST",
+                dataType: "json",
+                data: arr,
+                success: function (data) {
+                    if (data.code == 0) {
+                        parent.layer.msg("修改成功");
+                        parent.layer.close(index);
+                    } else {
+                        parent.layer.msg("修改失败");
+                    }
+                }
+            });
+            return false;
+        });
+    });
+</script>
+</body>
+</html>
